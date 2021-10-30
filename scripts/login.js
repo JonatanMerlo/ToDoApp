@@ -62,7 +62,7 @@ window.addEventListener('load', function(){
 
     function normalizacionLogin(email, password) {
         const usuario = {
-            email: email.toLowerCase().trim(),
+            email: email.trim(),
             password: password.trim()
         }
     
