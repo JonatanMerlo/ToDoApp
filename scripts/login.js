@@ -96,7 +96,7 @@ window.addEventListener('load', function(){
                 // accionar pensando en que el resultado es un usuario y contraseña correctos
                 localStorage.setItem('token', data.jwt);
                 //redijo a la pantalla de tareas
-                location.href = '/mis-tareas.html';
+                location.href = './mis-tareas.html';
             }else{
                 alert("Alguno de los datos ingresados es incorrecto.")
             }
