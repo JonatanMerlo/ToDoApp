@@ -157,7 +157,7 @@ function fetchApiSignUp(url,payload) {
     .then(response => response.json())
     .then(data => {
         if (data.jwt) {
-            location.href = '/index.html'
+            location.replace('./index.html')
         }
     })
 }

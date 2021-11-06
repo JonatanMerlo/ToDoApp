@@ -1,6 +1,6 @@
 const usuarioAutenticado = localStorage.getItem('token')
 if (!usuarioAutenticado) {
-    location.replace('/')
+    location.replace('./index.html')
 }
 
 
@@ -29,6 +29,11 @@ window.addEventListener('load', ()=>{
         e.preventDefault();
         objetoTarea.description = nuevaTarea.value;
         fetchAgregarTareas(`${urlApiBase}/tasks`, jwt,objetoTarea)
+        Swal.fire(
+            'Exito!',
+            'La tarea se creo exitosamente',
+            'success'
+        )
         fetchObtenerTareas(`${urlApiBase}/tasks`, jwt)
         formulario.reset();
     })
@@ -65,9 +70,9 @@ window.addEventListener('load', ()=>{
         .then(response => response.json())
         .then(data => {
             renderizarTareas(data);
-            let botonCompletarTarea = document.querySelectorAll('.change')
+            let botonCompletarTarea = document.querySelectorAll('.not-done')
             let botonRehacerTarea = document.querySelectorAll('.fas')
-            let botonEliminarTarea = document.querySelectorAll('.far')
+            let botonEliminarTarea = document.querySelectorAll('.fa-trash-alt')
             cambiarEstadoACompletado(botonCompletarTarea, data)
             cambiarEstadoAPendiente(botonRehacerTarea, data)
             eliminarTarea(botonEliminarTarea, data)
@@ -110,6 +115,7 @@ window.addEventListener('load', ()=>{
         .then(response => response.json())
         .then(data => {
             fetchObtenerTareas(`${urlApiBase}/tasks`, jwt)
+
         })
     }
 
@@ -200,6 +206,8 @@ window.addEventListener('load', ()=>{
         // console.log(tareas);
         tareas.forEach(tarea => {
                 tarea.addEventListener('click', ()=>{
+                    console.log("completada");
+                    Swal.fire('Completada!','Tarea completada','success')
                     fetchActualizarTareaARealizada(`${urlApiBase}/tasks/${tarea.id}`, jwt)
                 })
             
@@ -210,7 +218,20 @@ window.addEventListener('load', ()=>{
         // console.log(tareas);
         tareas.forEach(tarea => {
                 tarea.addEventListener('click', ()=>{
-                    fetchActualizarTareaAPendiente(`${urlApiBase}/tasks/${tarea.id}`, jwt)
+                    Swal.fire({
+                        title: '¿Esta seguro?',
+                        text: 'La tarea pasara a estar "pendiente"',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Si, volver a pendiente!'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetchActualizarTareaAPendiente(`${urlApiBase}/tasks/${tarea.id}`, jwt)
+                            }
+                        })
+
                 })
             
         }) 
@@ -220,19 +241,46 @@ window.addEventListener('load', ()=>{
         // console.log(tareas);
         tareas.forEach(tarea => {
                 tarea.addEventListener('click', ()=>{
-                    fetchEliminarTarea(`${urlApiBase}/tasks/${tarea.id}`, jwt)
+                    Swal.fire({
+                        title: '¿Esta seguro?',
+                        text: "La tarea se eliminara de manera permanente",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Si, eliminar tarea!'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          Swal.fire(
+                            'Eliminada!',
+                            'La tarea fue eliminada con exito',
+                            'success'
+                            )
+                            fetchEliminarTarea(`${urlApiBase}/tasks/${tarea.id}`, jwt)
+                        }
+                      })
                 })
             
         }) 
     }
-    // fetchObtenerTarea(`${urlApiBase}/tasks/2542`, jwt)
 
+
+    // logica del boton para cerrar sesion
     botonCerrarSesion.addEventListener(('click'),() => {
-        let cerrar = confirm("Desea cerrar sesion??")
-        if(cerrar){
-            localStorage.removeItem('token')
-            location.replace('/')
-        }
+        Swal.fire({
+            title: '¿Desea cerrar sesión?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, cerrar sesion!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('token')
+                location.replace('./index.html')
+            }
+          })
+
     })
 
 })

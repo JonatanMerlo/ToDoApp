@@ -96,7 +96,7 @@ window.addEventListener('load', function(){
                 // accionar pensando en que el resultado es un usuario y contraseña correctos
                 localStorage.setItem('token', data.jwt);
                 //redijo a la pantalla de tareas
-                location.replace('./mis-tareas.html');
+                location.replace('./mis-tareas.html'); //En el caso de giihub requiere que sea un replace para que que no borre toda la url
             }else{
                 alert("Alguno de los datos ingresados es incorrecto.")
             }
