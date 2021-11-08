@@ -6,6 +6,9 @@ window.addEventListener('load', () => {
     const inputNombre =  this.document.querySelector('#inputNombre');
     const inputApellido = this.document.querySelector('#inputApellido')
     const inputRepetirContrasenia = this.document.querySelector('#inputRepetirContrasenia');
+    const textosError = document.querySelectorAll('.textoError')
+    const contenedorSpinnerYBoton = document.querySelector('.buttonSpinner')
+    const botonSubmit = document.querySelector('button')
     const caracteresInvalidos = ['1','2','3','4','5','6','7','8','9','0',',','.',';',':','-','_','[','[','^','}',']','*','~','+','¡','¿','?','|','°','¬','!','#','$','%','&','(',')','=']
     let usuario = {
         firstName:'',
@@ -13,6 +16,16 @@ window.addEventListener('load', () => {
         email: '',
         password: '',
     };
+
+        // creo el spinner
+        const spinner = this.document.createElement('div')
+        spinner.classList.add('spinner')
+        spinner.innerHTML = `<div class="rect1"></div>
+                            <div class="rect2"></div>
+                            <div class="rect3"></div>
+                            <div class="rect4"></div>
+                            <div class="rect5"></div>`
+//-------------------------------------------------------------------------------------------------------    
 
 
     formulario.addEventListener('submit', (e) =>{
@@ -23,16 +36,64 @@ window.addEventListener('load', () => {
         let contrasenia = inputContrasenia.value;
         let repetirContrasenia = inputRepetirContrasenia.value;
 
-        if(ningunCampoVacio(nombre, apellido, email, contrasenia, repetirContrasenia) && validarIgualdadContraseniaYRepetirContrasenia(contrasenia, repetirContrasenia)){
+        let algunCampoVacio = validarNoVacio(nombre) && validarNoVacio(apellido) && validarNoVacio(email) && validarNoVacio(contrasenia) && validarNoVacio(repetirContrasenia) 
+        let contraseniasIguales = validarIgualdadContraseniaYRepetirContrasenia(contrasenia, repetirContrasenia)
+        if(algunCampoVacio && contraseniasIguales){
             usuario.firstName = nombre;
             usuario.lastName = apellido;
             usuario.email = email;
             usuario.password = contrasenia;
-
-            fetchApiSignUp(apiURL, usuario)
+            cargando();
+            setTimeout(() => {
+                fetchApiSignUp(apiURL, usuario)
+            }, 3000);
 
             console.log(usuario);
             formulario.reset()
+        }else{
+            for (let i = 0; i < textosError.length; i++) {
+                if (!validarNoVacio(formulario[i].value)) {
+                    textosError[i].textContent = 'El campo no puede estar vacio'
+                    textosError[i].classList.remove('invisible')
+                    formulario[i].classList.add('error')
+                    setTimeout(()=>{
+                        formulario[i].classList.remove('error')
+                        textosError[i].classList.add('invisible')
+                    },3000) 
+                }
+                if (!sinCaracteresEspeciales(formulario[i].value, caracteresInvalidos)) {
+                    if (i < 2) {
+                        textosError[i].textContent = 'No se permiten caracteres especiales'
+                        textosError[i].classList.remove('invisible')
+                        formulario[i].classList.add('error')
+                        setTimeout(()=>{
+                            formulario[i].classList.remove('error')
+                            textosError[i].classList.add('invisible')
+                        },3000) 
+                    }
+                }
+                if (!contraseniasIguales) {
+                    for (let i = 3; i < textosError.length; i++) {
+                        textosError[i].textContent = 'Las contraseñas deben ser iguales'
+                        textosError[i].classList.remove('invisible')
+                        formulario[i].classList.add('error')
+                        setTimeout(()=>{
+                            formulario[i].classList.remove('error')
+                            textosError[i].classList.add('invisible')
+                        },3000) 
+                    }
+                }
+                if(!validarEmail(formulario[2].value)){
+                    textosError[2].textContent = 'No es un formato de Email valido'
+                    textosError[2].classList.remove('invisible')
+                    formulario[2].classList.add('error')
+                    setTimeout(()=>{
+                        formulario[2].classList.remove('error')
+                        textosError[2].classList.add('invisible')
+                    },3000) 
+                }
+                
+            }
         }
 
         // console.log(usuario);
@@ -45,11 +106,11 @@ window.addEventListener('load', () => {
     //Validar que tanto nombre ni apellido tenga caracteres especiales
 
 
-    function sinCaracteresEspeciales(nombre, apellido, caracteresInvalidos) {
+    function sinCaracteresEspeciales(dato, caracteresInvalidos) {
         let sinCaracteres = true;
         caracteresInvalidos.forEach(caracter => {
-            if (nombre.includes(caracter) || apellido.includes(caracter)) {
-                // console.log(nombre.includes(caracter));
+            if (dato.includes(caracter)) {
+                // console.log(dato.includes(caracter));
                 sinCaracteres = false;
             }
         })
@@ -75,69 +136,30 @@ window.addEventListener('load', () => {
     }
     // ---------------------------------------------------------------------------------------------
 
+    function validarIgualdadContraseniaYRepetirContrasenia(contrasenia, repetirContrasenia) {
+        let sonIguales = false;
+        if (contrasenia == repetirContrasenia) {
+            sonIguales = true
+        }
+        return sonIguales;
+    }
+
+
     // -----------------------------------------------------------------------------------
     // validaciones de campos no vacios
 
-    function validarNombreNoVacio(nombre) {
-        if (nombre != '') {
+    function validarNoVacio(dato) {
+        if (dato != '') {
             return true;
         }
         return false;
     }
 
-    function validarApellidoNoVacio(apellido) {
-        if (apellido != '') {
-            return true;
-        }
-        return false;
+    function cargando() {
+        contenedorSpinnerYBoton.removeChild(botonSubmit)
+        contenedorSpinnerYBoton.appendChild(spinner)
     }
 
-    function validarEmailNoVacio(email) {
-        if (email != '') {
-            return true
-        }
-        return false;
-    }
-
-    function validarContraseniaNoVacia(contrasenia) {
-        if (contrasenia != '') {
-            return true
-        }else{
-            return false
-        }
-    }
-
-    function validarRepetirContraseniaNoVacio(repetirContrasenia) {
-        if (repetirContrasenia != '') {
-            return true
-        }else{
-            return false
-        }
-    }
-
-    
-    function ningunCampoVacio(nombre, apellido, email, contrasenia, repetirContrasenia) {
-        let algunVacio = false;
-        algunVacio = validarNombreNoVacio(nombre) && validarApellidoNoVacio(apellido) && validarEmailNoVacio(email) && validarContraseniaNoVacia(contrasenia) && validarRepetirContraseniaNoVacio(repetirContrasenia)
-        return algunVacio
-    }
-    
-    // ----------------------------------------------------------------------------------------
-
-
-
-    // ----------------------------------------------------------------------------------------
-    // validar que tanto contraseña como repetir contraseña sean iguales
-
-    function validarIgualdadContraseniaYRepetirContrasenia(contrasenia, repetirContrasenia) {
-
-        if (repetirContrasenia === contrasenia) {
-            return true
-        }
-        return false
-        
-    }
-    // ----------------------------------------------------------------------------------------
     
 
 })
@@ -161,3 +183,4 @@ function fetchApiSignUp(url,payload) {
         }
     })
 }
+
