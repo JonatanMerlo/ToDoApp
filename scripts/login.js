@@ -49,7 +49,7 @@ window.addEventListener('load', function(){
                 errorCampoVacio(inputPassword, textErrorPass)
             }
         }
-
+        formulario.reset();
     });
 
 
